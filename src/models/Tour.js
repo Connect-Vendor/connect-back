@@ -57,4 +57,40 @@ const Schema = mongoose.Schema({
       message: 'Discount price {VALUE} cannot be greater or equal to price',
     },
   },
+  difficulty: {
+    type: String,
+    enum: {
+      values: ['easy', 'medium', 'difficult'],
+      message: 'diffculty can either be easy, medium or difficulty',
+    },
+    required: [true, 'Difficulty is required'],
+  },
+  startLocation: {
+    type: {
+      type: String,
+      default: 'Point',
+      enum: ['Point'],
+    },
+    coordinates: [Number],
+    address: String,
+    description: String,
+  },
+  locations: [
+    {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+      day: Number,
+    },
+  ],
+  guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
 });
+
+const Tour = mongoose.model('Tour', Schema);
+
+module.exports = Tour;
