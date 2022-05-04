@@ -38,7 +38,7 @@ a[x-apple-data-detectors] {
 	color:inherit!important;
 	text-decoration:none!important;
 	font-size:inherit!important;
-	font-family:inherit!important;
+	font-family:inherit!important;c
 	font-weight:inherit!important;
 	line-height:inherit!important;
 }

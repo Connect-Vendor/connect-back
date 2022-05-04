@@ -22,7 +22,6 @@ const Schema = new mongoose.Schema({
   photo: { type: String, default: 'default.png' },
   password: {
     type: String,
-    required: [true, 'Password required'],
     minlength: 8,
     select: false,
   },
@@ -46,6 +45,17 @@ const Schema = new mongoose.Schema({
 
 Schema.methods.isPasswordCorrect = async function (password, hashPass) {
   return await bcrypt.compare(password, hashPass);
+};
+
+Schema.methods.isPasswordChanged = function (JWTTimestam) {
+  if (this.password_changed_at) {
+    const changedTimestamp = parseInt(
+      this.password_changed_at.getTime() / 1000,
+      10
+    );
+    return JWTTimestam < changedTimestamp;
+  }
+  return false;
 };
 
 const UserModel = mongoose.model('User', Schema);

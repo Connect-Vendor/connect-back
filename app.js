@@ -2,7 +2,12 @@ const express = require('express');
 const morgan = require('morgan');
 const ErrorHandler = require('./src/utils/Errorhandler');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
+const passport  = require('passport');
 const ErrorController = require('./src/middleware/ErrorController');
+
+//Passport init
+require('./src/middleware/Oauth');
 
 const UserRoute = require('./src/routes/UserRoute');
 const AuthRoute= require('./src/routes/AuthRoutes');
@@ -17,6 +22,14 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: true, limit: '50kb'}));
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 10000,
+  keys: [process.env.COOKIE_SESSION_KEY]
+}));
+
+//initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 //SECURITY CHECKS
 
@@ -76,6 +89,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/auth', AuthRoute)
 app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/admin', AdminRoute);
+app.get('/favicon.ico', (req, res) => res.status(204));
 // app.use('/api/v1/')
 
 

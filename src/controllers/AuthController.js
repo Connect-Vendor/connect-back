@@ -129,6 +129,11 @@ exports.login = AsyncHandler(async (req, res, next) => {
     return response(res, 200, 's200', 'logged in successfully', {token, user});
 });
 
+
+/**
+ * @desc Middleware for protecting some routes
+ * @param
+ */
 exports.protect = AsyncHandler(async (req, res, next) => {
     //Get token
     let token;
@@ -156,14 +161,40 @@ exports.protect = AsyncHandler(async (req, res, next) => {
     next();
 })
 
+/**
+ * @desc Logout
+ * @param : password, email
+ * @route Post /api/v1/auth/logout
+ */
 exports.logOut = (req, res, next) => {
     res.cookie('jwt', 'loggingout', {
       expires: new Date(Date.now() * 10 * 1000),
       httpOnly: true,
     });
+    // req.logout();
   
-    res.status(200).json({ status: 'success', message: 'Logged out successfully', code: 's200' });
+    // res.status(200).json({ status: 'success', message: 'Logged out successfully', code: 's200' });
+   return response(res, 200, 's200', 'Logged out successfully');
 };
+
+
+/**
+ * @desc Google auth
+ * @param 
+ * @route Post /api/v1/auth/google
+ */
+exports.googleAuth = AsyncHandler(async (req, res, next)=> {
+    //create send token
+    const token = jwt.sign({id: req.user._id}, process.env.JWT_PKEY, {
+        expiresIn: process.env.JWT_COOKIE_EXPIRES_IN 
+    });
+
+    const data = {
+        token,
+        user: req.user
+    }
+   return response(res, 200, 's200', 'Logged in with google', data)
+})
 
 exports.resetPassword = AsyncHandler((req, res, next) => {
 
