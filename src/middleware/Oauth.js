@@ -47,7 +47,7 @@ passport.use(new GoogleAuthenication({
 ))
 
 
-////////////////////////////////////////FACEBOOK
+////////////////////////////////////////FACEBOOK AUTHENTICATION
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,

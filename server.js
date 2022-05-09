@@ -17,8 +17,8 @@ const app = require('./app');
 console.log(process.env.NODE_ENV);
 
 mongoose
-  .connect(process.env.DATABASE, {
-  // .connect(process.env.LOCAL_DB, {
+  // .connect(process.env.DATABASE, {
+  .connect(process.env.LOCAL_DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

@@ -5,11 +5,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const response = require("../utils/response");
 const Email = require('../utils/EmailUtil');
+// const { promisify } = require('util');
 
 
 /**
  * @desc Signup a user
- * @param : first_name, last_name, password, email, phone
+ * @payload : first_name, last_name, password, email, phone
  * @route Post /api/v1/auth/signup
  */
 exports.signUp = AsyncHandler(async (req, res, next) => {
@@ -64,8 +65,9 @@ exports.signUp = AsyncHandler(async (req, res, next) => {
     }
 
     //create Token
+    console.log('JWT CHECK',process.env.JWT_EXPIRATION)
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_PKEY, {
-        expiresIn: process.env.JWT_EXPIRATION,
+        expiresIn: Number(process.env.JWT_EXPIRATION),
     });
 
     //send cookie
@@ -90,7 +92,7 @@ exports.signUp = AsyncHandler(async (req, res, next) => {
 
 /**
  * @desc Login a user
- * @param : password, email
+ * @payload : password, email
  * @route Post /api/v1/auth/login
  */
 exports.login = AsyncHandler(async (req, res, next) => {
@@ -103,13 +105,15 @@ exports.login = AsyncHandler(async (req, res, next) => {
 
     //Check is user exist
     const user = await User.findOne({email}).select('+password');
-
+    // console.log('Email', user);
     if(!user || !(await user.isPasswordCorrect(password, user.password))) return next(new ErrorHandler('Incorrect email or password', 200, 'e401'));
+
 
     //create send token
     const token = jwt.sign({id: user._id}, process.env.JWT_PKEY, {
-        expiresIn: process.env.JWT_COOKIE_EXPIRES_IN 
-    })
+        expiresIn: process.env.JWT_EXPIRATION,
+        // algorithm: 'HS256'
+    });
 
     //Send cookie
     const cookieOpt = {
@@ -132,21 +136,23 @@ exports.login = AsyncHandler(async (req, res, next) => {
 
 /**
  * @desc Middleware for protecting some routes
- * @param
+ * @payload
  */
 exports.protect = AsyncHandler(async (req, res, next) => {
     //Get token
     let token;
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1];
-    }else if(req.cookie.auth){
+        console.log('TOKEN',token);
+    }else if(req.cookie && req.cookie.auth){
         token = req.cookie.auth;
     }
 
     if(!token) return next(new ErrorHandler(`You're not loggedin please log in to get access`, 200, 'e401'));
 
     //Verify token
-    const decode = await promisify(jwt.verify)(token, process.env.JWT_PKEY);
+    const decode = jwt.verify(token, process.env.JWT_PKEY);
+    // console.log('DECODED', decode)
 
     //Check if user still exists
     const currentUser = await User.findById(decode.id);
@@ -163,7 +169,7 @@ exports.protect = AsyncHandler(async (req, res, next) => {
 
 /**
  * @desc Logout
- * @param : password, email
+ * @payload : password, email
  * @route Post /api/v1/auth/logout
  */
 exports.logOut = (req, res, next) => {
@@ -180,7 +186,7 @@ exports.logOut = (req, res, next) => {
 
 /**
  * @desc Google auth
- * @param 
+ * @payload 
  * @route Post /api/v1/auth/google
  */
 exports.googleAuth = AsyncHandler(async (req, res, next)=> {
@@ -195,6 +201,19 @@ exports.googleAuth = AsyncHandler(async (req, res, next)=> {
     }
    return response(res, 200, 's200', 'Logged in with google', data)
 })
+
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    // console.log('USER',req.user);
+    if (!roles.includes(req.user.role))
+      return next(
+        new ErrorHandler('You do not have access to perform this action', 403)
+      );
+        
+    next();
+  };
 
 exports.resetPassword = AsyncHandler((req, res, next) => {
 
