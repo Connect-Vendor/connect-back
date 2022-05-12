@@ -30,7 +30,6 @@ const Schema = new mongoose.Schema({
     enum: ['user', 'admin', 'super-admin'],
     default: 'user',
   },
-  business_name: String,
   password_changed_at: { type: Date, default: 0 },
   password_reset_expires: Date,
   active: {

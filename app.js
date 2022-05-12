@@ -19,6 +19,8 @@ const AuthRoute= require('./src/routes/AuthRoutes');
 const AdminRoute = require('./src/routes/AdminRouter');
 const ServiceRoute = require('./src/routes/ServiceRouter');
 const ReviewRoute = require('./src/routes/ReviewRoute');
+const VendorRoute = require('./src/routes/VendorRouter');
+const PaymentRoute = require('./src/routes/PaymentRouter');
 
 
 const app = express();
@@ -94,6 +96,8 @@ app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/admin', AdminRoute);
 app.use('/api/v1/review', ReviewRoute);
 app.use('/api/v1/service', ServiceRoute);
+app.use('/api/v1/vendor', VendorRoute);
+app.use('/api/v1/payment', PaymentRoute);
 app.get('/favicon.ico', (req, res) => res.status(204));
 // app.use('/api/v1/')
 

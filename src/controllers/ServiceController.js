@@ -2,43 +2,50 @@ const Service = require('../models/Service');
 const response = require('../utils/response');
 const ErrorHandler = require('../utils/Errorhandler');
 const AsyncHandler = require('../utils/AsyncHandler');
+const Vendor = require('../models/Vendor');
 
 
 /**
  * @desc Create Service
- * @payload : name, price, location, description, summery, discount, bussiness_name, cover_image, images
+ * @payload : name, price, location, description, summery, discount, bussiness_name, cover_image, images, account_details, category
  * @route POST /api/v1/service/create-service
  */
 
 exports.createService = AsyncHandler(async (req, res, next) => {
-    const {name, cover_image, images, price, location, description, summery, discount, category, business_name} = req.body;
+    const {name, cover_image, images, price, description, summery, discount, category, account_details} = req.body;
 
     //Check fields
     if(!name) return next(new ErrorHandler('Service name is requried', 200, 'e404'));
     if(!price) return next(new ErrorHandler('Service price is requried', 200, 'e404'))
-    if(!location) return next(new ErrorHandler('Location is required', 200, 'e404'))
     if(!description) return next(new ErrorHandler('Service description is required', 200, 'e404'))
     if(!summery) return next(new ErrorHandler('Summery is required', 200, 'e404'))
     if(!category) return next(new ErrorHandler('Service category is required', 200, 'e404'));
+    if(!account_details || typeof account_details !== 'object') return next(new ErrorHandler('Account details is required', 200, 'e404'));
 
     //Check if user already have a service with similar name
     const isService = await Service.findOne({name, created_by: req.user.created_by});
     if(isService) return next(new ErrorHandler('You already have a service with this name please choose another name', 200, 'e401'))
     
     //Proccess and upload cover image and showcase images
+
+
+    //Get vendors details
+    const vendor = await Vendor.findOne({vendor_id: req.user._id});
+
     console.log('User',req.user)
     //Create service
     const service = await Service.create({
         name,
         price: Number(price),
-        location,
+        location: vendor.location,
         description,
+        account_details,
         cover_image,
         category,
         images,
         summery,
         discount: discount ? discount : 0,
-        business_name: req.user.business_name,
+        business_name: vendor.business_name,
         created_by: req.user._id,
     });
 

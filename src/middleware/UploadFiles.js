@@ -14,9 +14,12 @@ const multerFilter = (req, file, cb) => {
 
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
-exports.validateImage = upload.fields([{ name: 'cover_image', maxCount: 1 }, { name: 'images', maxCount: 10 }]);
+//Filter Files
+exports.validateImage = upload.fields([{ name: 'cover_image', maxCount: 1 },{name: 'logo', maxCount: 1}, { name: 'images', maxCount: 10 }]);
 
 
+
+//Upload
 exports.uploadImages = AsyncHandler(async (req, res, next) => {
     //check if images were uplaoded
     if (!req.files.cover_image && !req.files.images) return next(new ErrorHandler('Please make sure you upload cover image and showcase image', 200, 'e404'));
@@ -41,3 +44,27 @@ exports.uploadImages = AsyncHandler(async (req, res, next) => {
 
     next();
 })
+
+//Upload business logo
+exports.uploadBussinessLogo = AsyncHandler(async (req, res, next) => {
+    //check if logo exists
+    console.log(req.files);
+    if(!req.files.logo) return next();
+
+    //Set cover image file name
+    req.body.logo =  `public/images/img-${req.body.business_name.split(' ').join('_').toUpperCase()}-logo.jpeg`;
+
+    await sharp(req.files.logo[0].buffer).toFormat('jpeg').jpeg({quality: 90}).toFile(`${req.body.logo}`);
+
+    next();
+});
+
+
+//Change profile picture
+exports.changeProfilePic = AsyncHandler(async (req, res, next) => {
+
+});
+
+//Change business logo
+exports.changeBusinessLogo = AsyncHandler(async(req, res, next)=> {})
+

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const Schema = new mongoose.Schema({
-  tour: {
+  service: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Tour',
+    ref: 'Service',
     required: [true, 'Booking must have a tour'],
   },
   user: {
@@ -15,6 +15,7 @@ const Schema = new mongoose.Schema({
     type: Number,
     required: [true, 'Booking must have a price'],
   },
+  payment_reference: String,
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -26,7 +27,7 @@ const Schema = new mongoose.Schema({
 });
 
 Schema.pre(/^find/, async function (next) {
-  this.populate('user').populate('tour');
+  this.populate('user').populate('service');
 
   next();
 });

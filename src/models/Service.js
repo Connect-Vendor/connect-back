@@ -4,6 +4,7 @@ const Schema = new mongoose.Schema({
     name: String,
     price: {type: Number, min: 0.1, required: [true, 'Service price is required'] },
     location: [Object],
+    account_details: {type: mongoose.Schema.ObjectId, ref: 'Account'},
     created_by: {type: mongoose.Schema.ObjectId, ref: 'User'},
     description: String,
     summery: String,
