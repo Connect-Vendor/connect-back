@@ -2,6 +2,7 @@ const axios = require('axios').default;
 const Account = require('../models/BankDetails');
 const Vendor = require('../models/Vendor');
 const Service = require('../models/Service');
+const Booking = require('../models/Booking');
 const AsyncHandler = require('../utils/AsyncHandler');
 const ErrorHandler = require('../utils/Errorhandler');
 const response = require('../utils/response');
@@ -103,13 +104,17 @@ exports.checkoutService = AsyncHandler(async (req, res, next) => {
     //Get Vendor
     const vendorAcc = await Account.findOne({owner: service.created_by._id});
 
+    console.log(vendorAcc);
+
     //Build data
     const data = {
         amount: service.price * 100,
         email: req.user.email,
-        subaccount: vendorAcc.subaccount_code,
+        type: 'percentage',
+        subaccounts:  [{subaccount: vendorAcc.account_code, share: 96}],
+        bearer_type: 'subaccount',
         metadata: {service_id, user: req.user._id},
-        callback_url: `http://localhost:3500/veryfy-payment`
+        callback_url: `http://localhost:3500/api/v1/payment/verify-payment`
 
     }
 
@@ -132,17 +137,36 @@ exports.checkoutService = AsyncHandler(async (req, res, next) => {
 
 exports.verifyPayment = AsyncHandler(async (req, res, next) => {
     const {reference} = req.query;
+    console.log('Query',req.query);
 
+    //Verify payment
     const paystackResponse = await axios({
         method: 'GET',
         url: `https://api.paystack.co/transaction/verify/${reference}`,
         headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_KEY}`
+            Authorization: `Bearer ${process.env.PAYSTACK_KEY}`,
+            'Content-Type': 'application/json'
         }
     });
 
-    console.log(paystackResponse);
+    //Check if payment was successful
+    if(paystackResponse.data.status){
 
-    response(res, 200, 's200', 'You successfully purchased')
+        //Create booking
+        const data = paystackResponse.data.data;
+        const booking = await Booking({
+            user: data.metadata.user,
+            service: data.metadata.service_id,
+            price: data.amount,
+            payment_reference: reference,
+            paid: true
+        });
+
+        response(res, 200, 's200', 'You successfully purchased', booking);
+
+    }else{
+        next(new ErrorHandler('Error verifying payment', 200, 'e502'))
+    }
+
 });
 
