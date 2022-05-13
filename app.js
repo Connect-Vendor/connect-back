@@ -103,7 +103,7 @@ app.get('/favicon.ico', (req, res) => res.status(204));
 
 
 app.use('*', (req, res, next) => {
-  next(new ErrorHandler(`Can't find ${req.originalUrl} in this server`, false, 'e500'))
+  next(new ErrorHandler(`Can't resolve ${req.originalUrl}`, false, 'e500'))
 });
 
 //Global Error handler
