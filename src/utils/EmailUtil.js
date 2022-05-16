@@ -25,7 +25,7 @@ module.exports = class Email {
         html: template,
       };
 
-      const mg = mailgun({apiKey: 'b783b820abd915f8638cf65959f36578-fe066263-dc2b202e', domain: 'sandboxfd103ca353cb4377bf128b7b216a38fb.mailgun.org'});
+      const mg = mailgun({apiKey: process.env.MAIL_GUN_KEY , domain: process.env.MAIL_GUN_DOMAIN});
 
      const res = await mg.messages().send(options);
 
@@ -45,5 +45,15 @@ module.exports = class Email {
       this.url
     );
     await this.send(template, 'Welcome to Services');
+  }
+
+  async sendResetPassword(){
+    const template = `
+      <h2>Password reset Token</h2>
+      click on this link to reset password ${this.url}
+      Password reset will expire after 10 mins
+    
+    `
+    this.send(template, 'Password reset token');
   }
 };

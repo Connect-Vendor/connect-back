@@ -7,7 +7,7 @@ const Schema = new mongoose.Schema({
     vendor_code: {type: String, unique: true},
     phone: String,
     decription: String,
-    business_logo: {type: String, default: 'public/images/logo.png'},
+    business_logo: {type: String, default: 'public/vendors/logo.png'},
     date_created: {type: Date, default: Date.now()},
     status: {type: Number, default: 1}
 });

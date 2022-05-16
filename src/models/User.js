@@ -19,7 +19,7 @@ const Schema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  photo: { type: String, default: 'default.png' },
+  photo: { type: String, default: 'public/users/default.jpeg' },
   password: {
     type: String,
     minlength: 8,
@@ -30,8 +30,9 @@ const Schema = new mongoose.Schema({
     enum: ['user', 'admin', 'super-admin'],
     default: 'user',
   },
-  password_changed_at: { type: Date, default: 0 },
-  password_reset_expires: Date,
+  password_reset_token: {type: String, select: false},
+  password_changed_at: { type: Date, default: 0, select: false },
+  password_reset_expires: {tppe: Date, select: false},
   active: {
     type: Boolean,
     default: true,

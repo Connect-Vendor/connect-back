@@ -41,7 +41,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Load static files
-app.use('/public/images', express.static(__dirname + '/public/images'));
+app.use('/public', express.static(__dirname + '/public'));
 
 //SECURITY CHECKS
 
