@@ -210,7 +210,7 @@ exports.restrictTo =
             // console.log('USER',req.user);
             if (!roles.includes(req.user.role))
                 return next(
-                    new ErrorHandler('You do not have access to perform this action', 403)
+                    new ErrorHandler('You do not have access to perform this action', 403, 'e400')
                 );
 
             next();

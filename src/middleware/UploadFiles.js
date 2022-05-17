@@ -51,7 +51,10 @@ exports.uploadImages = AsyncHandler(async (req, res, next) => {
 exports.uploadBussinessLogo = AsyncHandler(async (req, res, next) => {
     //check if logo exists
     // console.log(req.files);
-    if(!req.files.logo) return next();
+    if(!req.files?.logo){
+        req.body.logo = 'public/vendors/logo.png'
+         return next();
+    }
 
     //Set cover image file name
     req.body.logo =  `public/vendors/vendor-${req.body.business_name.split(' ').join('_')}-logo.jpeg`;
