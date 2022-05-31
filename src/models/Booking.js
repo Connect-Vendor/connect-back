@@ -15,6 +15,7 @@ const Schema = new mongoose.Schema({
     type: Number,
     required: [true, 'Booking must have a price'],
   },
+  vendor: {type: mongoose.Schema.ObjectId, ref: "User"},
   payment_reference: String,
   createdAt: {
     type: Date,

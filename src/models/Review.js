@@ -8,7 +8,6 @@ const Schema = new mongoose.Schema({
     min: 1,
     max: 5,
   },
-
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',

@@ -5,10 +5,10 @@ const {protect, restrictTo} = require('../controllers/AuthController');
 
 
 router.get('/', getAllService);
-router.get('/:id', getService);
-router.get('/vendor/:vendor_id', getAllServiceByVendor);
+router.get('/:id', protect, getService);
+router.get('/vendor/:vendor_id', protect, getAllServiceByVendor);
 router.post('/create-service', protect, restrictTo('admin', 'super-admin'), validateImage, uploadImages,  createService);
-router.put('/edit-service', protect, restrictTo('admin', 'super-admin'), editService);
+router.put('/edit-service/:id', protect, restrictTo('admin', 'super-admin'), editService);
 router.delete('/:id', protect, restrictTo('admin', 'super-admin'), deleteService);
 
 

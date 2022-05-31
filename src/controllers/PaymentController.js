@@ -277,7 +277,7 @@ exports.checkoutService = AsyncHandler(async (req, res, next) => {
         email: req.user.email,
         subaccount: vendorAcc.account_code,
         channel: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'],
-        metadata: {service_id, user: req.user._id},
+        metadata: {service_id, vendor: service.created_by._id, user: req.user._id},
         callback_url: `http://localhost:3500/api/v1/payment/verify-payment`
     }
 
@@ -326,6 +326,7 @@ exports.verifyPayment = AsyncHandler(async (req, res, next) => {
             user: data.metadata.user,
             service: data.metadata.service_id,
             price: data.amount,
+            vendor: data.metadata.vendor,
             payment_reference: reference,
             paid: true
         });

@@ -10,6 +10,7 @@ const Schema = new mongoose.Schema({
     summery: String,
     category: String,
     cover_image: String,
+
     images: [String],
     slug: String,
     rating: {type: Number, min: 1, max: 5},

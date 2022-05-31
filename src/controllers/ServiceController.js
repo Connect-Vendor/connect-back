@@ -12,7 +12,7 @@ const Vendor = require('../models/Vendor');
  */
 
 exports.createService = AsyncHandler(async (req, res, next) => {
-    const {name, cover_image, images, price, description, summery, discount, category, account_details} = req.body;
+    const {name, cover_image, images, price, description, summery, discount, category, account_details, isSublish} = req.body;
 
     //Check fields
     if(!name) return next(new ErrorHandler('Service name is requried', 200, 'e404'));
@@ -20,10 +20,10 @@ exports.createService = AsyncHandler(async (req, res, next) => {
     if(!description) return next(new ErrorHandler('Service description is required', 200, 'e404'))
     if(!summery) return next(new ErrorHandler('Summery is required', 200, 'e404'))
     if(!category) return next(new ErrorHandler('Service category is required', 200, 'e404'));
-    if(!account_details || typeof account_details !== 'object') return next(new ErrorHandler('Account details is required', 200, 'e404'));
+    if(!account_details) return next(new ErrorHandler('Account details is required', 200, 'e404'));
 
     //Check if user already have a service with similar name
-    const isService = await Service.findOne({name, created_by: req.user.created_by});
+    const isService = await Service.findOne({name, created_by: req.user._id});
     if(isService) return next(new ErrorHandler('You already have a service with this name please choose another name', 200, 'e401'))
     
     //Proccess and upload cover image and showcase images
@@ -50,7 +50,10 @@ exports.createService = AsyncHandler(async (req, res, next) => {
     });
 
     //Publish Service on social platform
-
+    if(isSublish){
+        console.log('Published online');
+    }
+    
     //Send success response
     return response(res, 200, 's200', 'Service successfully created', service);
 
@@ -60,10 +63,11 @@ exports.createService = AsyncHandler(async (req, res, next) => {
 /**
  * @desc Edit Service
  * @payload : name, price, location, description, summery, discount
- * @route PUT /api/v1/service/edit-service
+ * @route PUT /api/v1/service/edit-service/:id
  */
 
 exports.editService = AsyncHandler(async (req, res, next) => {
+    const {id} = req.params;
     const {name, price, location, description, summery, discount} = req.body;
 
     //Validate fields
@@ -74,12 +78,14 @@ exports.editService = AsyncHandler(async (req, res, next) => {
     if(!summery) return next(new ErrorHandler('Summery is required', 200, 'e404'));
 
     //check if service exists
-    const isService = await Service.findOne({name, created_by: req.user._id});
+    const isService = await Service.findOne({_id: id, created_by: req.user._id});
 
-    if(!isService) return next(new ErrorHandler('Service not found', 200, 'e404'));
+    if(!isService) return next(new ErrorHandler('You cant edit this service', 200, 'e404'));
 
     //Update service 
-    const service = await Service.findOne({name, created_by: req.user._id});
+    const service = await Service.findOneAndUpdate({_id: id, created_by: req.user._id}, {
+        name, price, location, description, summery
+    });
 
     response(res, 200, 's200', 'Service is updated successfully', service);
 
@@ -89,20 +95,26 @@ exports.editService = AsyncHandler(async (req, res, next) => {
 /**
  * @desc Delete Services
  * @param : id
- * @route DELETE /api/v1/service/delete-service
+ * @route DELETE /api/v1/service/:id
  */
 exports.deleteService = AsyncHandler(async (req, res, next) => {
     const {id} = req.params;
 
     if(!id) return next(new ErrorHandler('Service ID is required', 200, 'e404'));
 
-    //Check if service exists
-    const isService = await Service.findById(id);
+    //check is if user is super admin
+    if(req.user.role === 'super-admin'){
+        await Service.updateOne({_id: id}, {status: 0});
+    }else{
+        //Check if service exists
+        const isService = await Service.findOne({_id: id, created_by: req.user._id});
+    
+        if(!isService) return next(new ErrorHandler('You can not delete this service', 200, 'e404'));
+    
+        //Update status to 0 i.e not active or deleted
+        await Service.updateOne({_id: id}, {status: 0});
+    }
 
-    if(!isService) return next(new ErrorHandler('Service not found', 200, 'e404'));
-
-    //Update status to 0 i.e not active or deleted
-    await Service.updateOne({_id: id}, {status: 0});
 
     response(res, 200, 's200', 'Service deleted successfully');
 });
