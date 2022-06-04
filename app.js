@@ -91,6 +91,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Base route Routes
+app.use('/', (req, res) => res.status(200).json({code: 's200', message: 'Welcome to Vendconn', status: true}))
 app.use('/api/v1/auth', AuthRoute)
 app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/admin', AdminRoute);
