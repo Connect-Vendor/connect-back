@@ -91,7 +91,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Base route Routes
-app.use('/', (req, res) => res.status(200).json({code: 's200', message: 'Welcome to Vendconn', status: true}))
 app.use('/api/v1/auth', AuthRoute)
 app.use('/api/v1/users', UserRoute);
 app.use('/api/v1/admin', AdminRoute);
@@ -100,6 +99,7 @@ app.use('/api/v1/service', ServiceRoute);
 app.use('/api/v1/vendor', VendorRoute);
 app.use('/api/v1/payment', PaymentRoute);
 app.get('/favicon.ico', (req, res) => res.status(204));
+app.use('/', (req, res) => res.status(200).json({code: 's200', message: 'Welcome to Vendconn', status: true}))
 // app.use('/api/v1/')
 
 
